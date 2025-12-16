@@ -15,7 +15,10 @@ exports.AlertsPage = class AlertsPage {
   }
 
   async navigate() {
-    await this.page.goto('https://demoqa.com/alerts');
+    await this.page.goto('https://demoqa.com/alerts', {
+      waitUntil: 'domcontentloaded',
+      timeout: 90000
+    });
   }
 
   async clickAlertButton() {

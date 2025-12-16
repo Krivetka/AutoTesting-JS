@@ -12,7 +12,10 @@ class SelectMenuPage {
   }
 
   async navigate() {
-    await this.page.goto('https://demoqa.com/select-menu');
+    await this.page.goto('https://demoqa.com/select-menu', {
+      waitUntil: 'domcontentloaded',
+      timeout: 90000
+    });
   }
 
   async selectValue(optionText) {

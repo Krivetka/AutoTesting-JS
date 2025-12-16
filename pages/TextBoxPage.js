@@ -15,7 +15,10 @@ class TextBoxPage {
   }
 
   async navigate() {
-    await this.page.goto('https://demoqa.com/text-box');
+    await this.page.goto('https://demoqa.com/text-box', {
+      waitUntil: 'domcontentloaded',
+      timeout: 90000
+    });
   }
 
   async fillForm(fullName, email, currentAddress, permanentAddress) {
