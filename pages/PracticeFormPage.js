@@ -131,15 +131,21 @@ class PracticeFormPage {
       }
     }
 
+    // Forcefully clean up any remaining modal/backdrop to avoid intercepting clicks in later tests
     try {
       await this.successModal.waitFor({ state: 'hidden', timeout: 10000 });
     } catch (error) {
       try {
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(1000);
-      } catch (e) {
-      }
+        await this.page.waitForTimeout(500);
+      } catch (e) {}
     }
+
+    // Ensure no overlay remains
+    await this.page.evaluate(() => {
+      document.body.classList.remove('modal-open');
+      document.querySelectorAll('.modal-backdrop, .modal.show').forEach(el => el.remove());
+    });
   }
 }
 

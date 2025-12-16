@@ -14,6 +14,7 @@ exports.AlertsPage = class AlertsPage {
       waitUntil: 'domcontentloaded',
       timeout: 90000
     });
+    await this.confirmButton.waitFor({ state: 'visible', timeout: 15000 });
   }
 
   async clickAlertButton() {

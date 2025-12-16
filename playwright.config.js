@@ -7,11 +7,11 @@ const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  timeout: 200000,
+  timeout: 100000,
   expect: {
     timeout: 10000, 
   },
-  workers: 2,
+  workers: 3,
   reporter: 'html',
   use: {
     trace: 'on-first-retry',
