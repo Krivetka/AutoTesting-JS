@@ -30,9 +30,9 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps
 
-    - name: Run tests with HD resolution (1920x1080)
+    - name: Run tests
       run: |
-        VIEWPORT_WIDTH=1920 VIEWPORT_HEIGHT=1080 npm test
+        npm test
       env:
         CI: true
 
