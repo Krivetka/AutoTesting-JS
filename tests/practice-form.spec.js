@@ -1,4 +1,3 @@
-// @ts-check
 const { test, expect } = require('@playwright/test');
 const { PracticeFormPage } = require('../pages/PracticeFormPage');
 
@@ -43,14 +42,24 @@ test.describe('Practice Form Tests', () => {
     while (attempts < maxAttempts) {
       try {
         await practiceFormPage.navigate();
-        break; 
+        await page.waitForLoadState('domcontentloaded');
+        await page.waitForTimeout(1000);
+
+        try {
+          const modalVisible = await practiceFormPage.successModal.isVisible({ timeout: 1000 });
+          if (modalVisible) {
+            await practiceFormPage.closeModal();
+          }
+        } catch (error) {
+        }
+
+        break;
       } catch (error) {
         attempts++;
         if (attempts >= maxAttempts) {
-          throw error; 
+          throw error;
         }
-        console.log(`Navigation attempt ${attempts} failed, retrying...`);
-        await page.waitForTimeout(2000); 
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
   });
@@ -71,6 +80,8 @@ test.describe('Practice Form Tests', () => {
 
         await practiceFormPage.submit();
 
+        await practiceFormPage.page.waitForTimeout(2000);
+
         await expect(practiceFormPage.successModal).toBeVisible();
         await expect(practiceFormPage.modalTitle).toHaveText('Thanks for submitting the form');
 
@@ -83,6 +94,8 @@ test.describe('Practice Form Tests', () => {
         expect(modalText).toContain(data.hobby);
         expect(modalText).toContain(data.address);
         expect(modalText).toContain(`${data.state} ${data.city}`);
+
+        await practiceFormPage.closeModal();
       });
     });
   });

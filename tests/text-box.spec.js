@@ -1,4 +1,3 @@
-// @ts-check
 const { test, expect } = require('@playwright/test');
 const { TextBoxPage } = require('../pages/TextBoxPage');
 
@@ -13,14 +12,15 @@ test.describe('Text Box Tests', () => {
     while (attempts < maxAttempts) {
       try {
         await textBoxPage.navigate();
-        break; 
+        await page.waitForLoadState('domcontentloaded');
+        await page.waitForTimeout(1000);
+        break;
       } catch (error) {
         attempts++;
         if (attempts >= maxAttempts) {
-          throw error; 
+          throw error;
         }
-        console.log(`Navigation attempt ${attempts} failed, retrying...`);
-        await page.waitForTimeout(2000); 
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
   });
@@ -60,4 +60,3 @@ test.describe('Text Box Tests', () => {
     expect(outputText).toBe('');
   });
 });
-

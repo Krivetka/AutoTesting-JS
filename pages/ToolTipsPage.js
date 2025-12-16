@@ -1,10 +1,4 @@
-// @ts-check
-const { expect } = require('@playwright/test');
-
 class ToolTipsPage {
-  /**
-   * @param {import('@playwright/test').Page} page
-   */
   constructor(page) {
     this.page = page;
     this.toolTipButton = page.locator('#toolTipButton');
@@ -37,7 +31,7 @@ class ToolTipsPage {
   }
 
   async getToolTipText() {
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(1500);
 
     const tooltipSelectors = [
       '.tooltip-inner',
@@ -52,7 +46,16 @@ class ToolTipsPage {
       '[aria-label]',
       '[title]',
       '.tooltip-text',
-      '.tooltip-content'
+      '.tooltip-content',
+      '.bs-tooltip-auto',
+      '.bs-tooltip-top',
+      '.bs-tooltip-bottom',
+      '.bs-tooltip-left',
+      '.bs-tooltip-right',
+      '[data-tooltip]',
+      '.hover-tooltip',
+      '.tooltip.show',
+      '.tooltip.fade.show'
     ];
 
     for (const selector of tooltipSelectors) {
@@ -64,7 +67,7 @@ class ToolTipsPage {
           const tooltip = tooltips.nth(i);
           if (await tooltip.isVisible({ timeout: 1000 })) {
             const text = await tooltip.textContent();
-            if (text && text.trim() && (text.includes('You hovered') || text.includes('hover'))) {
+            if (text && text.trim() && (text.includes('You hovered') || text.includes('hover') || text.includes('hovered'))) {
               return text.trim();
             }
           }
@@ -74,7 +77,6 @@ class ToolTipsPage {
       }
     }
 
-    // Try to find by aria-describedby attribute
     try {
       const elementsWithAriaDescribedBy = this.page.locator('[aria-describedby]');
       const count = await elementsWithAriaDescribedBy.count();
@@ -109,10 +111,8 @@ class ToolTipsPage {
         }
       }
     } catch (e) {
-      // Ignore errors in fallback search
     }
 
-    // Additional fallback: check for any element with tooltip-related classes or attributes
     try {
       const potentialTooltips = this.page.locator('[class*="tooltip"], [id*="tooltip"], [data-tooltip]');
       const count = await potentialTooltips.count();
@@ -127,7 +127,6 @@ class ToolTipsPage {
         }
       }
     } catch (e) {
-      // Ignore errors in final fallback
     }
 
     throw new Error('Tooltip not found with any selector');
@@ -135,4 +134,3 @@ class ToolTipsPage {
 }
 
 module.exports = { ToolTipsPage };
-

@@ -1,9 +1,4 @@
-// @ts-check
-
 class PracticeFormPage {
-  /**
-   * @param {import('@playwright/test').Page} page
-   */
   constructor(page) {
     this.page = page;
     this.firstNameInput = page.locator('#firstName');
@@ -24,6 +19,7 @@ class PracticeFormPage {
     this.submitButton = page.locator('#submit');
     this.successModal = page.locator('.modal-content');
     this.modalTitle = page.locator('#example-modal-sizes-title-lg');
+    this.modalCloseButton = page.locator('.modal-content .close');
   }
 
   async navigate() {
@@ -88,7 +84,63 @@ class PracticeFormPage {
   async submit() {
     await this.submitButton.click();
   }
+
+  async closeModal() {
+    await this.page.waitForTimeout(1000);
+
+    const isModalVisible = await this.successModal.isVisible().catch(() => false);
+    if (!isModalVisible) {
+      return;
+    }
+
+    let closed = false;
+
+    try {
+      const closeButtons = this.page.locator('.modal-content .close, .modal-content .btn-close, button[aria-label="Close"]');
+      const count = await closeButtons.count();
+      if (count > 0) {
+        await closeButtons.first().click({ timeout: 3000 });
+        closed = true;
+      }
+    } catch (error) {
+    }
+
+    if (!closed) {
+      try {
+        await this.page.keyboard.press('Escape');
+        await this.page.waitForTimeout(500);
+        await this.page.keyboard.press('Escape');
+        closed = true;
+      } catch (error) {
+      }
+    }
+
+    if (!closed) {
+      try {
+        await this.page.locator('.modal-backdrop').click({ timeout: 3000 });
+        closed = true;
+      } catch (error) {
+      }
+    }
+
+    if (!closed) {
+      try {
+        await this.page.locator('body').click({ position: { x: 10, y: 10 }, timeout: 2000 });
+        closed = true;
+      } catch (error) {
+      }
+    }
+
+    try {
+      await this.successModal.waitFor({ state: 'hidden', timeout: 10000 });
+    } catch (error) {
+      try {
+        await this.page.keyboard.press('Escape');
+        await this.page.waitForTimeout(1000);
+      } catch (e) {
+      }
+    }
+  }
 }
 
 module.exports = { PracticeFormPage };
-

@@ -1,9 +1,4 @@
-// @ts-check
-
 class SelectMenuPage {
-  /**
-   * @param {import('@playwright/test').Page} page
-   */
   constructor(page) {
     this.page = page;
     this.selectValueDropdown = page.locator('#withOptGroup');
@@ -33,22 +28,16 @@ class SelectMenuPage {
   }
 
   async selectMulti(options) {
-    // Click on the input area of the multiselect by finding it relative to the label
     const label = this.page.getByText('Multiselect drop down');
     const container = label.locator('xpath=following::*[contains(@class, "css-")]').first();
     await container.click();
 
-    // Wait for dropdown and select options
     for (const option of options) {
       await this.page.locator('.css-26l3qy-menu').getByText(option, { exact: true }).click();
     }
 
-    // Close dropdown
     await this.page.keyboard.press('Escape');
   }
 }
 
 module.exports = { SelectMenuPage };
-
-
-

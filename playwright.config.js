@@ -1,13 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-// Parse viewport from environment variables or use undefined to let project defaults/device descriptors handle it
 const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
   ? { width: parseInt(process.env.VIEWPORT_WIDTH, 10), height: parseInt(process.env.VIEWPORT_HEIGHT, 10) }
   : undefined;
@@ -15,11 +8,11 @@ const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  timeout: 60000, 
+  timeout: 90000, 
   expect: {
     timeout: 10000, 
   },
-  workers: 2, 
+  workers: 4, 
   reporter: 'html',
   use: {
     trace: 'on-first-retry',

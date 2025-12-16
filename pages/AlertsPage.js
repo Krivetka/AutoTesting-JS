@@ -1,9 +1,4 @@
-// @ts-check
-
 exports.AlertsPage = class AlertsPage {
-  /**
-   * @param {import('@playwright/test').Page} page
-   */
   constructor(page) {
     this.page = page;
     this.alertButton = page.locator('#alertButton');
