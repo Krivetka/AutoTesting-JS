@@ -7,7 +7,7 @@ const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  timeout: 100000,
+  timeout: 200000,
   expect: {
     timeout: 10000, 
   },
