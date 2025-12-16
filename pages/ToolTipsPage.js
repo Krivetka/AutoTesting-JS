@@ -3,8 +3,9 @@ class ToolTipsPage {
     this.page = page;
     this.toolTipButton = page.locator('#toolTipButton');
     this.toolTipTextField = page.locator('#toolTipTextField');
-    this.contraryLink = page.getByText('Contrary');
-    this.sectionLink = page.getByText('1.10.32');
+    this.contraryLink = page.getByRole('link', { name: 'Contrary', exact: true });
+    this.sectionLink = page.getByRole('link', { name: '1.10.32', exact: true });
+    this.lastHoveredElement = null;
   }
 
   async navigate() {
@@ -16,121 +17,55 @@ class ToolTipsPage {
 
   async hoverButton() {
     await this.toolTipButton.hover();
+    this.lastHoveredElement = this.toolTipButton;
   }
 
   async hoverTextField() {
     await this.toolTipTextField.hover();
     await this.toolTipTextField.focus();
+    this.lastHoveredElement = this.toolTipTextField;
   }
 
   async hoverContraryLink() {
     await this.contraryLink.hover();
+    this.lastHoveredElement = this.contraryLink;
   }
 
   async hoverSectionLink() {
     await this.sectionLink.hover();
+    this.lastHoveredElement = this.sectionLink;
   }
 
   async getToolTipText() {
-    await this.page.waitForTimeout(2000);
-
-    const tooltipSelectors = [
-      '.tooltip-inner',
-      '[role="tooltip"]',
-      '.tooltip .tooltip-inner',
-      '.tooltip.show .tooltip-inner',
-      '.tooltip',
-      '.fade.show.tooltip .tooltip-inner',
-      '.tooltip.fade.show .tooltip-inner',
-      'div.tooltip .tooltip-inner',
-      '[data-bs-original-title]',
-      '[aria-label]',
-      '[title]',
-      '.tooltip-text',
-      '.tooltip-content',
-      '.bs-tooltip-auto',
-      '.bs-tooltip-top',
-      '.bs-tooltip-bottom',
-      '.bs-tooltip-left',
-      '.bs-tooltip-right',
-      '[data-tooltip]',
-      '.hover-tooltip',
-      '.tooltip.show',
-      '.tooltip.fade.show'
-    ];
-
-    for (const selector of tooltipSelectors) {
-      try {
-        const tooltips = this.page.locator(selector);
-        const count = await tooltips.count();
-
-        for (let i = 0; i < count; i++) {
-          const tooltip = tooltips.nth(i);
-          if (await tooltip.isVisible({ timeout: 1000 })) {
-            const text = await tooltip.textContent();
-            if (text && text.trim() && (text.includes('You hovered') || text.includes('hover') || text.includes('hovered'))) {
-              return text.trim();
-            }
-          }
-        }
-      } catch (e) {
-        continue;
-      }
-    }
-
-    try {
-      const elementsWithAriaDescribedBy = this.page.locator('[aria-describedby]');
-      const count = await elementsWithAriaDescribedBy.count();
-
-      for (let i = 0; i < count; i++) {
-        const element = elementsWithAriaDescribedBy.nth(i);
-        const ariaDescribedBy = await element.getAttribute('aria-describedby');
-        if (ariaDescribedBy) {
-          const tooltip = this.page.locator(`#${ariaDescribedBy}`);
-          if (await tooltip.isVisible({ timeout: 500 })) {
-            const text = await tooltip.textContent();
-            if (text && text.trim()) {
-              return text.trim();
-            }
-          }
-        }
-      }
-    } catch (e) {}
-
-    try {
-      const allVisibleElements = this.page.locator('body *:visible');
-      const elements = await allVisibleElements.all();
-
-      for (const element of elements) {
-        try {
-          const text = await element.textContent();
-          if (text && text.trim() && (text.includes('You hovered over') || text.includes('hover'))) {
-            return text.trim();
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-    } catch (e) {
-    }
-
-    try {
-      const potentialTooltips = this.page.locator('[class*="tooltip"], [id*="tooltip"], [data-tooltip]');
-      const count = await potentialTooltips.count();
-
-      for (let i = 0; i < count; i++) {
-        const tooltip = potentialTooltips.nth(i);
-        if (await tooltip.isVisible({ timeout: 500 })) {
-          const text = await tooltip.textContent() || await tooltip.getAttribute('data-tooltip') || await tooltip.getAttribute('title');
-          if (text && text.trim()) {
-            return text.trim();
-          }
-        }
-      }
-    } catch (e) {
+    const tooltipText = await this.getTooltipViaDescribedBy();
+    if (tooltipText) {
+      return tooltipText;
     }
 
     throw new Error('Tooltip not found with any selector');
+  }
+
+  async getTooltipViaDescribedBy() {
+    if (!this.lastHoveredElement) {
+      return null;
+    }
+
+    // Poll aria-describedby so we don't rely on arbitrary timeouts; CI/headless can be slower
+    let tooltipId = null;
+    for (let i = 0; i < 10; i++) {
+      tooltipId = await this.lastHoveredElement.getAttribute('aria-describedby');
+      if (tooltipId) break;
+      await this.page.waitForTimeout(500);
+    }
+
+    if (!tooltipId) {
+      return null;
+    }
+
+    const tooltip = this.page.locator(`#${tooltipId} .tooltip-inner, #${tooltipId}`);
+    await tooltip.first().waitFor({ state: 'visible', timeout: 5000 });
+    const text = await tooltip.first().textContent();
+    return text && text.trim() ? text.trim() : null;
   }
 }
 
