@@ -47,12 +47,22 @@ class PracticeFormPage {
   }
 
   async selectSubject(subject) {
-    await this.subjectsInput.click(); 
+    await this.subjectsInput.click();
     await this.subjectsInput.fill(subject);
     await this.page.waitForTimeout(500); 
     const option = this.page.locator('.subjects-auto-complete__option').filter({ hasText: subject });
-    await option.waitFor({ state: 'visible', timeout: 3000 });
-    await option.click();
+
+    try {
+      await option.waitFor({ state: 'visible', timeout: 3000 });
+      await option.click({ timeout: 1000 });
+    } catch (error) {
+      try {
+        await option.click({ force: true, timeout: 1000 });
+      } catch (secondError) {
+        await this.subjectsInput.press('ArrowDown');
+        await this.subjectsInput.press('Enter');
+      }
+    }
   }
 
   async selectHobby(hobby) {
