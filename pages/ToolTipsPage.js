@@ -20,6 +20,7 @@ class ToolTipsPage {
 
   async hoverTextField() {
     await this.toolTipTextField.hover();
+    await this.toolTipTextField.focus();
   }
 
   async hoverContraryLink() {

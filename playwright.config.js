@@ -1,4 +1,3 @@
-// @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
 const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
