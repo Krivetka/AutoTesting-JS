@@ -32,7 +32,7 @@ class ToolTipsPage {
   }
 
   async getToolTipText() {
-    await this.page.waitForTimeout(1500);
+    await this.page.waitForTimeout(2000);
 
     const tooltipSelectors = [
       '.tooltip-inner',
