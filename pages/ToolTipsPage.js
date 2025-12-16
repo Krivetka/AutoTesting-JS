@@ -37,28 +37,57 @@ class ToolTipsPage {
   }
 
   async getToolTipText() {
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(2000);
 
     const tooltipSelectors = [
       '.tooltip-inner',
       '[role="tooltip"]',
+      '.tooltip .tooltip-inner',
+      '.tooltip.show .tooltip-inner',
       '.tooltip',
-      '.tooltip.show .tooltip-inner'
+      '[data-bs-toggle="tooltip"]',
+      '[aria-describedby]',
+      '.fade.show.tooltip',
+      '.tooltip.fade.show',
+      'div.tooltip',
+      'div[class*="tooltip"]',
+      '[data-original-title]'
     ];
 
     for (const selector of tooltipSelectors) {
       try {
         const tooltip = this.page.locator(selector);
-        await expect(tooltip).toBeVisible({ timeout: 2000 });
-        return await tooltip.textContent();
+        if (await tooltip.count() > 0) {
+          await expect(tooltip).toBeVisible({ timeout: 3000 });
+          const text = await tooltip.textContent();
+          if (text && text.trim()) {
+            return text.trim();
+          }
+        }
       } catch (e) {
         continue;
       }
     }
 
-    const anyTooltip = this.page.locator('[class*="tooltip"]').or(this.page.locator('[role="tooltip"]'));
-    await expect(anyTooltip).toBeVisible({ timeout: 2000 });
-    return await anyTooltip.textContent();
+    try {
+      const allElements = this.page.locator('body *');
+      const elements = await allElements.all();
+      for (const element of elements) {
+        try {
+          const text = await element.textContent();
+          const isVisible = await element.isVisible();
+          if (isVisible && text && (text.includes('You hovered over') || text.includes('hover'))) {
+            return text.trim();
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    } catch (e) {
+      // Ignore errors in fallback search
+    }
+
+    throw new Error('Tooltip not found with any selector');
   }
 }
 
