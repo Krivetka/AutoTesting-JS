@@ -14,7 +14,10 @@ class ToolTipsPage {
   }
 
   async navigate() {
-    await this.page.goto('https://demoqa.com/tool-tips');
+    await this.page.goto('https://demoqa.com/tool-tips', {
+      waitUntil: 'domcontentloaded',
+      timeout: 90000
+    });
   }
 
   async hoverButton() {

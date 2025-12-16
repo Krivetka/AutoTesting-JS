@@ -7,7 +7,22 @@ test.describe('Alerts Page Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     alertsPage = new AlertsPage(page);
-    await alertsPage.navigate();
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        await alertsPage.navigate();
+        break; 
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          throw error; 
+        }
+        console.log(`Navigation attempt ${attempts} failed, retrying...`);
+        await page.waitForTimeout(2000);
+      }
+    }
   });
 
   test('Should handle basic alert', async ({ page }) => {

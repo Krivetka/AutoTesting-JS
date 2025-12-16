@@ -7,7 +7,22 @@ test.describe('Tool Tips Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     toolTipsPage = new ToolTipsPage(page);
-    await toolTipsPage.navigate();
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        await toolTipsPage.navigate();
+        break; 
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          throw error; 
+        }
+        console.log(`Navigation attempt ${attempts} failed, retrying...`);
+        await page.waitForTimeout(2000); 
+      }
+    }
   });
 
   test('Should display correct tooltip for Button', async () => {

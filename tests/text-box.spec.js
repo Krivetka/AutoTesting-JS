@@ -7,7 +7,22 @@ test.describe('Text Box Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     textBoxPage = new TextBoxPage(page);
-    await textBoxPage.navigate();
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        await textBoxPage.navigate();
+        break; 
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          throw error; 
+        }
+        console.log(`Navigation attempt ${attempts} failed, retrying...`);
+        await page.waitForTimeout(2000); 
+      }
+    }
   });
 
   test('Should submit form with valid random data', async () => {

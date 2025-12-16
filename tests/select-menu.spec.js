@@ -7,7 +7,22 @@ test.describe('Select Menu Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     selectMenuPage = new SelectMenuPage(page);
-    await selectMenuPage.navigate();
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        await selectMenuPage.navigate();
+        break; 
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          throw error; 
+        }
+        console.log(`Navigation attempt ${attempts} failed, retrying...`);
+        await page.waitForTimeout(2000); 
+      }
+    }
   });
 
   test('Should handle all select menus correctly', async () => {
