@@ -24,6 +24,7 @@ class PracticeFormPage {
     this.submitButton = page.locator('#submit');
     this.successModal = page.locator('.modal-content');
     this.modalTitle = page.locator('#example-modal-sizes-title-lg');
+    this.modalCloseButton = page.locator('.modal-content .close');
   }
 
   async navigate() {
@@ -87,6 +88,16 @@ class PracticeFormPage {
 
   async submit() {
     await this.submitButton.click();
+  }
+
+  async closeModal() {
+    // Try to click the close button, if it doesn't work, try pressing Escape
+    try {
+      await this.modalCloseButton.click({ timeout: 5000 });
+    } catch (error) {
+      // If close button fails, try pressing Escape key
+      await this.page.keyboard.press('Escape');
+    }
   }
 }
 

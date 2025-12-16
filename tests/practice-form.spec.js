@@ -83,6 +83,9 @@ test.describe('Practice Form Tests', () => {
         expect(modalText).toContain(data.hobby);
         expect(modalText).toContain(data.address);
         expect(modalText).toContain(`${data.state} ${data.city}`);
+
+        // Close the modal to prevent it from interfering with subsequent tests
+        await practiceFormPage.closeModal();
       });
     });
   });
