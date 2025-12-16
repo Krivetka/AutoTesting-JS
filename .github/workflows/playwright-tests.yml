@@ -6,13 +6,12 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run daily at midnight UTC (adjust timezone as needed)
     - cron: '0 0 * * *'
 
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
