@@ -15,7 +15,7 @@ test.describe('Practice Form Tests', () => {
     await navigateWithRetry(page, async () => {
       await practiceFormPage.navigate();
       try {
-        const modalVisible = await practiceFormPage.successModal.isVisible({ timeout: 1000 });
+        const modalVisible = await practiceFormPage.successModal.isVisible();
         if (modalVisible) {
           await practiceFormPage.closeModal();
         }

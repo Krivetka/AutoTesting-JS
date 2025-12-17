@@ -27,8 +27,7 @@ class PracticeFormPage {
 
   async navigate() {
     await this.page.goto('https://demoqa.com/automation-practice-form', {
-      waitUntil: 'domcontentloaded',
-      timeout: 90000
+      waitUntil: 'domcontentloaded'
     });
     await this.removeOverlays();
   }
@@ -54,15 +53,14 @@ class PracticeFormPage {
   async selectSubject(subject) {
     await this.subjectsInput.click();
     await this.subjectsInput.fill(subject);
-    await this.page.waitForTimeout(500); 
     const option = this.subjectOption.filter({ hasText: subject });
 
     try {
-      await option.waitFor({ state: 'visible', timeout: 3000 });
-      await option.click({ timeout: 1000 });
+      await option.waitFor({ state: 'visible' });
+      await option.click();
     } catch (error) {
       try {
-        await option.click({ force: true, timeout: 1000 });
+        await option.click({ force: true });
       } catch (secondError) {
         await this.subjectsInput.press('ArrowDown');
         await this.subjectsInput.press('Enter');
@@ -71,7 +69,7 @@ class PracticeFormPage {
     await this.page.waitForFunction((subj) => {
         const selected = document.querySelector('.subjects-auto-complete__multi-value__label');
         return selected && selected.textContent === subj;
-    }, subject, { timeout: 2000 }).catch(() => {});
+    }, subject).catch(() => {});
   }
 
   async selectHobby(hobby) {
@@ -120,20 +118,20 @@ class PracticeFormPage {
 
   async closeModal() {
     try {
-      await this.successModal.waitFor({ state: 'visible', timeout: 2000 });
+      await this.successModal.waitFor({ state: 'visible' });
     } catch (e) {
       return;
     }
 
     try {
-      if (await this.modalCloseButton.isVisible({ timeout: 1000 })) {
+      if (await this.modalCloseButton.isVisible()) {
         await this.modalCloseButton.click();
       } else {
-        if (await this.genericCloseButton.first().isVisible({ timeout: 1000 })) {
+        if (await this.genericCloseButton.first().isVisible()) {
           await this.genericCloseButton.first().click();
         }
       }
-      await this.successModal.waitFor({ state: 'hidden', timeout: 2000 });
+      await this.successModal.waitFor({ state: 'hidden' });
       return;
     } catch (error) {
       console.warn(`[PracticeFormPage] Failed to close modal via button: ${error.message}`);
@@ -142,7 +140,7 @@ class PracticeFormPage {
     if (await this.successModal.isVisible()) {
       try {
         await this.page.keyboard.press('Escape');
-        await this.successModal.waitFor({ state: 'hidden', timeout: 2000 });
+        await this.successModal.waitFor({ state: 'hidden' });
         return;
       } catch (error) {
         console.warn(`[PracticeFormPage] Failed to close modal via Escape key: ${error.message}`);
