@@ -11,7 +11,7 @@ module.exports = defineConfig({
   expect: {
     timeout: 10000, 
   },
-  workers: 3,
+  workers: 2,
   reporter: 'html',
   use: {
     trace: 'on-first-retry',
