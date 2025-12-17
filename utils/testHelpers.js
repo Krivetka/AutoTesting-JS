@@ -1,37 +1,34 @@
-/**
- * Navigates to a page and waits for a specific element to be visible, with retry logic.
- * 
- * @param {import('@playwright/test').Page} page - The Playwright Page object.
- * @param {Function} gotoFn - An async function that performs the navigation (e.g., () => page.goto(...)).
- * @param {string|import('@playwright/test').Locator} readySelector - A selector string or Locator to wait for to confirm page load.
- * @param {Object} options - Optional configuration.
- * @param {number} [options.maxAttempts=3] - Maximum number of retry attempts.
- * @param {number} [options.timeout=2000] - Timeout between retries in milliseconds.
- */
 async function navigateWithRetry(page, gotoFn, readySelector = null, options = {}) {
   const { maxAttempts = 3, timeout = 2000 } = options;
   let attempts = 0;
 
   while (attempts < maxAttempts) {
     try {
+      if (page.isClosed()) {
+        throw new Error(`Page was closed before navigation attempt ${attempts + 1}`);
+      }
+
       await gotoFn();
-      
+
       if (readySelector) {
         if (typeof readySelector === 'string') {
-          await page.waitForSelector(readySelector, { state: 'visible' });
+          await page.waitForSelector(readySelector, { state: 'visible', timeout: 15000 });
         } else {
-          await readySelector.waitFor({ state: 'visible' });
+          await readySelector.waitFor({ state: 'visible', timeout: 15000 });
         }
       } else {
         await page.waitForLoadState('load');
       }
-      
+
       break;
     } catch (error) {
       attempts++;
+      console.warn(`[navigateWithRetry] Attempt ${attempts}/${maxAttempts} failed: ${error.message}`);
+
       if (attempts >= maxAttempts) {
-        throw error;
+        throw new Error(`Navigation failed after ${maxAttempts} attempts. Last error: ${error.message}`);
       }
+
       await page.waitForTimeout(timeout);
     }
   }

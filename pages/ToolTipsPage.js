@@ -53,7 +53,6 @@ class ToolTipsPage {
       await fallbackTooltip.first().waitFor({ state: 'visible', timeout: 5000 });
       return await fallbackTooltip.first().textContent();
     } catch (e) {
-      // Ignore and throw specific error below
     }
 
     throw new Error('Tooltip not found with any selector');

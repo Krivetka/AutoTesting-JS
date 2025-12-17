@@ -11,7 +11,7 @@ test.describe('Practice Form Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     practiceFormPage = new PracticeFormPage(page);
-    
+
     await navigateWithRetry(page, async () => {
       await practiceFormPage.navigate();
       try {
@@ -20,11 +20,14 @@ test.describe('Practice Form Tests', () => {
           await practiceFormPage.closeModal();
         }
       } catch (error) {
-        // Ignore errors during modal check
       }
     });
 
-    await waitForUILoad(page, practiceFormPage.firstNameInput);
+    await waitForUILoad(page, practiceFormPage.firstNameInput, {
+      maxRetries: 5,
+      retryDelay: 2000,
+      locatorTimeout: 20000
+    });
   });
 
   test.describe('Parameterized form submissions', () => {

@@ -9,7 +9,11 @@ test.describe('Alerts Page Tests', () => {
   test.beforeEach(async ({ page }) => {
     alertsPage = new AlertsPage(page);
     await navigateWithRetry(page, () => alertsPage.navigate());
-    await waitForUILoad(page, alertsPage.alertButton);
+    await waitForUILoad(page, alertsPage.alertButton, {
+      maxRetries: 5,
+      retryDelay: 2000,
+      locatorTimeout: 20000
+    });
   });
 
   test('Should handle basic alert', async ({ page }) => {

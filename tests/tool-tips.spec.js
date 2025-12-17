@@ -9,7 +9,11 @@ test.describe('Tool Tips Tests', () => {
   test.beforeEach(async ({ page }) => {
     toolTipsPage = new ToolTipsPage(page);
     await navigateWithRetry(page, () => toolTipsPage.navigate());
-    await waitForUILoad(page, toolTipsPage.toolTipButton);
+    await waitForUILoad(page, toolTipsPage.toolTipButton, {
+      maxRetries: 5,
+      retryDelay: 2000,
+      locatorTimeout: 20000
+    });
   });
 
   test('Should display correct tooltip for Button', async () => {

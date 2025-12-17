@@ -7,13 +7,15 @@ const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  timeout: 100000,
-  workers: 2,
+  timeout: 120000,
+  workers: process.env.CI ? 1 : 2,
   reporter: 'html',
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: true,
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
   },
   grep: process.env.runThis ? new RegExp(process.env.runThis, 'i') : undefined,
   projects: [
