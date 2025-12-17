@@ -8,9 +8,6 @@ module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
   timeout: 100000,
-  expect: {
-    timeout: 10000, 
-  },
   workers: 2,
   reporter: 'html',
   use: {
