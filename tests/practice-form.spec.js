@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { PracticeFormPage } = require('../pages/PracticeFormPage');
 const { generateDataset } = require('../utils/dataFactory');
 const { navigateWithRetry } = require('../utils/testHelpers');
+const { waitForUILoad } = require('../utils/uiLoadHelpers');
 
 const datasets = Array.from({ length: 5 }, generateDataset);
 
@@ -21,7 +22,9 @@ test.describe('Practice Form Tests', () => {
       } catch (error) {
         // Ignore errors during modal check
       }
-    }, practiceFormPage.firstNameInput);
+    });
+
+    await waitForUILoad(page, practiceFormPage.firstNameInput);
   });
 
   test.describe('Parameterized form submissions', () => {

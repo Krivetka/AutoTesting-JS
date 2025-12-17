@@ -1,13 +1,15 @@
 const { test, expect } = require('@playwright/test');
 const { ToolTipsPage } = require('../pages/ToolTipsPage');
 const { navigateWithRetry } = require('../utils/testHelpers');
+const { waitForUILoad } = require('../utils/uiLoadHelpers');
 
 test.describe('Tool Tips Tests', () => {
   let toolTipsPage;
 
   test.beforeEach(async ({ page }) => {
     toolTipsPage = new ToolTipsPage(page);
-    await navigateWithRetry(page, () => toolTipsPage.navigate(), toolTipsPage.toolTipButton);
+    await navigateWithRetry(page, () => toolTipsPage.navigate());
+    await waitForUILoad(page, toolTipsPage.toolTipButton);
   });
 
   test('Should display correct tooltip for Button', async () => {

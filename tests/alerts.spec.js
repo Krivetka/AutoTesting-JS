@@ -1,13 +1,15 @@
 const { test, expect } = require('@playwright/test');
 const { AlertsPage } = require('../pages/AlertsPage');
 const { navigateWithRetry } = require('../utils/testHelpers');
+const { waitForUILoad } = require('../utils/uiLoadHelpers');
 
 test.describe('Alerts Page Tests', () => {
   let alertsPage;
 
   test.beforeEach(async ({ page }) => {
     alertsPage = new AlertsPage(page);
-    await navigateWithRetry(page, () => alertsPage.navigate(), alertsPage.alertButton);
+    await navigateWithRetry(page, () => alertsPage.navigate());
+    await waitForUILoad(page, alertsPage.alertButton);
   });
 
   test('Should handle basic alert', async ({ page }) => {
