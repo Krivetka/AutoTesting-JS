@@ -50,8 +50,8 @@ class ToolTipsPage {
 
     const fallbackTooltip = this.page.locator('.tooltip-inner');
     try {
-      await fallbackTooltip.waitFor({ state: 'visible', timeout: 2000 });
-      return await fallbackTooltip.textContent();
+      await fallbackTooltip.first().waitFor({ state: 'visible', timeout: 5000 });
+      return await fallbackTooltip.first().textContent();
     } catch (e) {
       // Ignore and throw specific error below
     }

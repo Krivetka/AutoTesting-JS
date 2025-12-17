@@ -22,6 +22,7 @@ class PracticeFormPage {
     this.modalTitle = page.locator('#example-modal-sizes-title-lg');
     this.modalCloseButton = page.locator('.modal-content .close');
     this.genericCloseButton = page.locator('.modal-content .close, #closeLargeModal');
+    this.dropdownOption = page.locator('div[id^="react-select"][class*="-option"]');
   }
 
   async navigate() {
@@ -98,12 +99,16 @@ class PracticeFormPage {
     
     if (state) {
         await this.stateDropdown.click();
-        await this.page.getByText(state, { exact: true }).click();
+        const stateOption = this.dropdownOption.filter({ hasText: state });
+        await stateOption.first().waitFor({ state: 'visible' });
+        await stateOption.first().click();
     }
     
     if (city) {
         await this.cityDropdown.click();
-        await this.page.getByText(city, { exact: true }).click();
+        const cityOption = this.dropdownOption.filter({ hasText: city });
+        await cityOption.first().waitFor({ state: 'visible' });
+        await cityOption.first().click();
     }
   }
 
@@ -111,12 +116,6 @@ class PracticeFormPage {
     await this.removeOverlays();
     await this.submitButton.scrollIntoViewIfNeeded();
     await this.submitButton.click({ force: true });
-    
-    try {
-      await this.successModal.waitFor({ state: 'visible', timeout: 5000 });
-    } catch (e) {
-      await this.submitButton.click({ force: true });
-    }
   }
 
   async closeModal() {
