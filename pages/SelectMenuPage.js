@@ -7,6 +7,7 @@ class SelectMenuPage {
     this.multiselectLabel = page.getByText('Multiselect drop down');
     this.multiselectContainer = this.multiselectLabel.locator('xpath=following::div[contains(@class, "-container")]').first();
     this.multiSelectMenu = page.locator('[class*="-menu"]');
+    this.multiSelectOption = this.multiSelectMenu.locator('[class*="-option"]');
   }
 
   async navigate() {
@@ -38,7 +39,7 @@ class SelectMenuPage {
     await this.multiselectContainer.click();
 
     for (const option of options) {
-      await this.multiSelectMenu.locator('[class*="-option"]').getByText(option, { exact: true }).click();
+      await this.multiSelectOption.getByText(option, { exact: true }).click();
     }
 
     await this.page.keyboard.press('Escape');
