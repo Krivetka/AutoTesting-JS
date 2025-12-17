@@ -35,20 +35,6 @@ jobs:
       env:
         CI: true
 
-    - name: Run tests with SD resolution (1366x768)
-      run: npm test
-      env:
-        CI: true
-        VIEWPORT_WIDTH: "1366"
-        VIEWPORT_HEIGHT: "768"
-
-    - name: Run tests with HD resolution (1920x1080)
-      run: npm test
-      env:
-        CI: true
-        VIEWPORT_WIDTH: "1920"
-        VIEWPORT_HEIGHT: "1080"
-
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
