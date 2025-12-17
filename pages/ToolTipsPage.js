@@ -65,23 +65,24 @@ class ToolTipsPage {
     }
 
     let tooltipId = null;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       tooltipId = await this.lastHoveredElement.getAttribute('aria-describedby');
       if (tooltipId) break;
-      await this.page.waitForTimeout(500);
+      await this.page.waitForTimeout(200);
     }
 
     if (!tooltipId) {
       return null;
     }
 
-    await this.lastHoveredElement.hover({ force: true });
-    await this.page.waitForTimeout(500);
-
     const tooltip = this.page.locator(`#${tooltipId} .tooltip-inner, #${tooltipId}`);
-    await tooltip.first().waitFor({ state: 'visible', timeout: 7000 });
-    const text = await tooltip.first().textContent();
-    return text && text.trim() ? text.trim() : null;
+    try {
+      await tooltip.first().waitFor({ state: 'visible', timeout: 3000 });
+      const text = await tooltip.first().textContent();
+      return text && text.trim() ? text.trim() : null;
+    } catch (e) {
+      return null;
+    }
   }
 }
 

@@ -25,7 +25,9 @@ class SelectMenuPage {
 
   async selectOne(optionText) {
     await this.selectOneDropdown.click();
-    await this.page.getByText(optionText, { exact: true }).click();
+    const option = this.page.getByText(optionText, { exact: true });
+    await option.waitFor({ state: 'visible' });
+    await option.click();
   }
 
   async selectOldStyle(optionText) {

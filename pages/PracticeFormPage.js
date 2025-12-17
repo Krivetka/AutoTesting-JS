@@ -111,6 +111,12 @@ class PracticeFormPage {
     await this.removeOverlays();
     await this.submitButton.scrollIntoViewIfNeeded();
     await this.submitButton.click({ force: true });
+    
+    try {
+      await this.successModal.waitFor({ state: 'visible', timeout: 5000 });
+    } catch (e) {
+      await this.submitButton.click({ force: true });
+    }
   }
 
   async closeModal() {
