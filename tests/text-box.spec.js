@@ -1,28 +1,13 @@
 const { test, expect } = require('@playwright/test');
 const { TextBoxPage } = require('../pages/TextBoxPage');
+const { navigateWithRetry } = require('../utils/testHelpers');
 
 test.describe('Text Box Tests', () => {
   let textBoxPage;
 
   test.beforeEach(async ({ page }) => {
     textBoxPage = new TextBoxPage(page);
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        await textBoxPage.navigate();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
-        break;
-      } catch (error) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-    }
+    await navigateWithRetry(page, () => textBoxPage.navigate(), textBoxPage.userNameInput);
   });
 
   test('Should submit form with valid random data', async () => {

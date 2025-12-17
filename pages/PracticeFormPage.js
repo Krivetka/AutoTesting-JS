@@ -10,6 +10,7 @@ class PracticeFormPage {
     this.mobileInput = page.locator('#userNumber');
     this.dobInput = page.locator('#dateOfBirthInput');
     this.subjectsInput = page.locator('#subjectsInput');
+    this.subjectOption = page.locator('.subjects-auto-complete__option');
     this.hobbiesSportsLabel = page.locator('label[for="hobbies-checkbox-1"]');
     this.hobbiesReadingLabel = page.locator('label[for="hobbies-checkbox-2"]');
     this.hobbiesMusicLabel = page.locator('label[for="hobbies-checkbox-3"]');
@@ -20,6 +21,7 @@ class PracticeFormPage {
     this.successModal = page.locator('.modal-content');
     this.modalTitle = page.locator('#example-modal-sizes-title-lg');
     this.modalCloseButton = page.locator('.modal-content .close');
+    this.genericCloseButton = page.locator('.modal-content .close, #closeLargeModal');
   }
 
   async navigate() {
@@ -27,6 +29,7 @@ class PracticeFormPage {
       waitUntil: 'domcontentloaded',
       timeout: 90000
     });
+    await this.removeOverlays();
   }
 
   async fillPersonalDetails(firstName, lastName, email, mobile) {
@@ -37,16 +40,21 @@ class PracticeFormPage {
   }
 
   async selectGender(gender) {
-    if (gender === 'Male') await this.genderMaleLabel.click();
-    else if (gender === 'Female') await this.genderFemaleLabel.click();
-    else await this.genderOtherLabel.click();
+    const locators = {
+      'Male': this.genderMaleLabel,
+      'Female': this.genderFemaleLabel,
+    };
+    const locator = locators[gender] || this.genderOtherLabel;
+
+    await locator.waitFor({ state: 'visible' });
+    await locator.click();
   }
 
   async selectSubject(subject) {
     await this.subjectsInput.click();
     await this.subjectsInput.fill(subject);
     await this.page.waitForTimeout(500); 
-    const option = this.page.locator('.subjects-auto-complete__option').filter({ hasText: subject });
+    const option = this.subjectOption.filter({ hasText: subject });
 
     try {
       await option.waitFor({ state: 'visible', timeout: 3000 });
@@ -62,9 +70,23 @@ class PracticeFormPage {
   }
 
   async selectHobby(hobby) {
-    if (hobby === 'Sports') await this.hobbiesSportsLabel.click();
-    else if (hobby === 'Reading') await this.hobbiesReadingLabel.click();
-    else if (hobby === 'Music') await this.hobbiesMusicLabel.click();
+    await this.removeOverlays();
+
+    const modalVisible = await this.successModal.isVisible().catch(() => false);
+    if (modalVisible) {
+      await this.closeModal();
+      await this.removeOverlays();
+    }
+
+    const hobbyMap = {
+      'Sports': this.hobbiesSportsLabel,
+      'Reading': this.hobbiesReadingLabel,
+      'Music': this.hobbiesMusicLabel,
+    };
+
+    if (hobbyMap[hobby]) {
+      await hobbyMap[hobby].click();
+    }
   }
 
   async fillAddress(address, state, city) {
@@ -82,69 +104,58 @@ class PracticeFormPage {
   }
 
   async submit() {
+    await this.removeOverlays();
     await this.submitButton.click();
   }
 
   async closeModal() {
-    await this.page.waitForTimeout(1000);
-
-    const isModalVisible = await this.successModal.isVisible().catch(() => false);
-    if (!isModalVisible) {
+    try {
+      await this.successModal.waitFor({ state: 'visible', timeout: 2000 });
+    } catch (e) {
       return;
     }
 
-    let closed = false;
-
     try {
-      const closeButtons = this.page.locator('.modal-content .close, .modal-content .btn-close, button[aria-label="Close"]');
-      const count = await closeButtons.count();
-      if (count > 0) {
-        await closeButtons.first().click({ timeout: 3000 });
-        closed = true;
+      if (await this.modalCloseButton.isVisible({ timeout: 1000 })) {
+        await this.modalCloseButton.click();
+      } else {
+        if (await this.genericCloseButton.first().isVisible({ timeout: 1000 })) {
+          await this.genericCloseButton.first().click();
+        }
       }
+      await this.successModal.waitFor({ state: 'hidden', timeout: 2000 });
+      return;
     } catch (error) {
+      console.warn(`[PracticeFormPage] Failed to close modal via button: ${error.message}`);
     }
 
-    if (!closed) {
+    if (await this.successModal.isVisible()) {
       try {
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(500);
-        await this.page.keyboard.press('Escape');
-        closed = true;
+        await this.successModal.waitFor({ state: 'hidden', timeout: 2000 });
+        return;
       } catch (error) {
+        console.warn(`[PracticeFormPage] Failed to close modal via Escape key: ${error.message}`);
       }
     }
 
-    if (!closed) {
-      try {
-        await this.page.locator('.modal-backdrop').click({ timeout: 3000 });
-        closed = true;
-      } catch (error) {
-      }
+    if (await this.successModal.isVisible()) {
+      console.warn('[PracticeFormPage] Modal still visible. Forcing removal via DOM manipulation.');
+      await this.removeOverlays();
     }
+  }
 
-    if (!closed) {
-      try {
-        await this.page.locator('body').click({ position: { x: 10, y: 10 }, timeout: 2000 });
-        closed = true;
-      } catch (error) {
-      }
-    }
-
-    // Forcefully clean up any remaining modal/backdrop to avoid intercepting clicks in later tests
-    try {
-      await this.successModal.waitFor({ state: 'hidden', timeout: 10000 });
-    } catch (error) {
-      try {
-        await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(500);
-      } catch (e) {}
-    }
-
-    // Ensure no overlay remains
+  async removeOverlays() {
     await this.page.evaluate(() => {
       document.body.classList.remove('modal-open');
-      document.querySelectorAll('.modal-backdrop, .modal.show').forEach(el => el.remove());
+      document.querySelectorAll([
+        '.modal-backdrop',
+        '.modal.show',
+        '#fixedban',
+        '#Ad.Plus-Anchor',
+        '#adplus-anchor',
+        '[id^="google_ads_iframe"]'
+      ].join(',')).forEach(el => el.remove());
     });
   }
 }

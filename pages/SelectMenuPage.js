@@ -4,6 +4,9 @@ class SelectMenuPage {
     this.selectValueDropdown = page.locator('#withOptGroup');
     this.selectOneDropdown = page.locator('#selectOne');
     this.oldStyleSelectMenu = page.locator('#oldSelectMenu');
+    this.multiselectLabel = page.getByText('Multiselect drop down');
+    this.multiselectContainer = this.multiselectLabel.locator('xpath=following::div[contains(@class, "-container")]').first();
+    this.multiSelectMenu = page.locator('[class*="-menu"]');
   }
 
   async navigate() {
@@ -28,12 +31,10 @@ class SelectMenuPage {
   }
 
   async selectMulti(options) {
-    const label = this.page.getByText('Multiselect drop down');
-    const container = label.locator('xpath=following::*[contains(@class, "css-")]').first();
-    await container.click();
+    await this.multiselectContainer.click();
 
     for (const option of options) {
-      await this.page.locator('.css-26l3qy-menu').getByText(option, { exact: true }).click();
+      await this.multiSelectMenu.locator('[class*="-option"]').getByText(option, { exact: true }).click();
     }
 
     await this.page.keyboard.press('Escape');

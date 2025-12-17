@@ -1,28 +1,13 @@
 const { test, expect } = require('@playwright/test');
 const { ToolTipsPage } = require('../pages/ToolTipsPage');
+const { navigateWithRetry } = require('../utils/testHelpers');
 
 test.describe('Tool Tips Tests', () => {
   let toolTipsPage;
 
   test.beforeEach(async ({ page }) => {
     toolTipsPage = new ToolTipsPage(page);
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        await toolTipsPage.navigate();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(2000);
-        break;
-      } catch (error) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-    }
+    await navigateWithRetry(page, () => toolTipsPage.navigate(), toolTipsPage.toolTipButton);
   });
 
   test('Should display correct tooltip for Button', async () => {

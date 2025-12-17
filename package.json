@@ -16,6 +16,7 @@
     "test:select": "cross-env runThis=Select npx playwright test"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.40.0",
     "cross-env": "^7.0.3"
   }

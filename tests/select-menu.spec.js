@@ -1,28 +1,13 @@
 const { test, expect } = require('@playwright/test');
 const { SelectMenuPage } = require('../pages/SelectMenuPage');
+const { navigateWithRetry } = require('../utils/testHelpers');
 
 test.describe('Select Menu Tests', () => {
   let selectMenuPage;
 
   test.beforeEach(async ({ page }) => {
     selectMenuPage = new SelectMenuPage(page);
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        await selectMenuPage.navigate();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
-        break;
-      } catch (error) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-    }
+    await navigateWithRetry(page, () => selectMenuPage.navigate(), selectMenuPage.selectValueDropdown);
   });
 
   test('Should handle all select menus correctly', async () => {

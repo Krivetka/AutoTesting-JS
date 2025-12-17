@@ -16,30 +16,44 @@ class ToolTipsPage {
   }
 
   async hoverButton() {
+    await this.toolTipButton.scrollIntoViewIfNeeded();
     await this.toolTipButton.hover();
     this.lastHoveredElement = this.toolTipButton;
   }
 
   async hoverTextField() {
+    await this.toolTipTextField.scrollIntoViewIfNeeded();
     await this.toolTipTextField.hover();
     await this.toolTipTextField.focus();
     this.lastHoveredElement = this.toolTipTextField;
   }
 
   async hoverContraryLink() {
+    await this.contraryLink.scrollIntoViewIfNeeded();
     await this.contraryLink.hover();
     this.lastHoveredElement = this.contraryLink;
   }
 
   async hoverSectionLink() {
+    await this.sectionLink.scrollIntoViewIfNeeded();
     await this.sectionLink.hover();
     this.lastHoveredElement = this.sectionLink;
   }
 
   async getToolTipText() {
+    await this.page.waitForTimeout(700);
+
     const tooltipText = await this.getTooltipViaDescribedBy();
     if (tooltipText) {
       return tooltipText;
+    }
+
+    const fallbackTooltip = this.page.locator('.tooltip-inner');
+    try {
+      await fallbackTooltip.waitFor({ state: 'visible', timeout: 2000 });
+      return await fallbackTooltip.textContent();
+    } catch (e) {
+      // Ignore and throw specific error below
     }
 
     throw new Error('Tooltip not found with any selector');
@@ -50,7 +64,6 @@ class ToolTipsPage {
       return null;
     }
 
-    // Poll aria-describedby so we don't rely on arbitrary timeouts; CI/headless can be slower
     let tooltipId = null;
     for (let i = 0; i < 10; i++) {
       tooltipId = await this.lastHoveredElement.getAttribute('aria-describedby');
@@ -62,8 +75,11 @@ class ToolTipsPage {
       return null;
     }
 
+    await this.lastHoveredElement.hover({ force: true });
+    await this.page.waitForTimeout(500);
+
     const tooltip = this.page.locator(`#${tooltipId} .tooltip-inner, #${tooltipId}`);
-    await tooltip.first().waitFor({ state: 'visible', timeout: 5000 });
+    await tooltip.first().waitFor({ state: 'visible', timeout: 7000 });
     const text = await tooltip.first().textContent();
     return text && text.trim() ? text.trim() : null;
   }

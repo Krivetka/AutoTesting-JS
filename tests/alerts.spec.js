@@ -1,28 +1,13 @@
 const { test, expect } = require('@playwright/test');
 const { AlertsPage } = require('../pages/AlertsPage');
+const { navigateWithRetry } = require('../utils/testHelpers');
 
 test.describe('Alerts Page Tests', () => {
   let alertsPage;
 
   test.beforeEach(async ({ page }) => {
     alertsPage = new AlertsPage(page);
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        await alertsPage.navigate();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
-        break;
-      } catch (error) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-    }
+    await navigateWithRetry(page, () => alertsPage.navigate(), alertsPage.alertButton);
   });
 
   test('Should handle basic alert', async ({ page }) => {

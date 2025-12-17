@@ -1,67 +1,27 @@
 const { test, expect } = require('@playwright/test');
 const { PracticeFormPage } = require('../pages/PracticeFormPage');
+const { generateDataset } = require('../utils/dataFactory');
+const { navigateWithRetry } = require('../utils/testHelpers');
 
-const randomString = (length) => Math.random().toString(36).substring(2, 2 + length);
-const randomPhone = () => Math.floor(1000000000 + Math.random() * 9000000000).toString();
-
-const datasets = [
-  {
-    firstName: `John${randomString(4)}`,
-    lastName: `Doe${randomString(4)}`,
-    email: `john${randomString(4)}@example.com`,
-    mobile: randomPhone(),
-    gender: 'Male',
-    subject: 'Maths',
-    hobby: 'Sports',
-    address: `123 Test St ${randomString(5)}`,
-    state: 'NCR',
-    city: 'Delhi'
-  },
-  {
-    firstName: `Jane${randomString(4)}`,
-    lastName: `Smith${randomString(4)}`,
-    email: `jane${randomString(4)}@test.com`,
-    mobile: randomPhone(),
-    gender: 'Female',
-    subject: 'English',
-    hobby: 'Reading',
-    address: `456 Another St ${randomString(5)}`,
-    state: 'Uttar Pradesh',
-    city: 'Agra'
-  }
-];
+const datasets = Array.from({ length: 5 }, generateDataset);
 
 test.describe('Practice Form Tests', () => {
   let practiceFormPage;
 
   test.beforeEach(async ({ page }) => {
     practiceFormPage = new PracticeFormPage(page);
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
+    
+    await navigateWithRetry(page, async () => {
+      await practiceFormPage.navigate();
       try {
-        await practiceFormPage.navigate();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
-
-        try {
-          const modalVisible = await practiceFormPage.successModal.isVisible({ timeout: 1000 });
-          if (modalVisible) {
-            await practiceFormPage.closeModal();
-          }
-        } catch (error) {
+        const modalVisible = await practiceFormPage.successModal.isVisible({ timeout: 1000 });
+        if (modalVisible) {
+          await practiceFormPage.closeModal();
         }
-
-        break;
       } catch (error) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Ignore errors during modal check
       }
-    }
+    }, practiceFormPage.firstNameInput);
   });
 
   test.describe('Parameterized form submissions', () => {
@@ -79,8 +39,6 @@ test.describe('Practice Form Tests', () => {
         await practiceFormPage.fillAddress(data.address, data.state, data.city);
 
         await practiceFormPage.submit();
-
-        await practiceFormPage.page.waitForTimeout(2000);
 
         await expect(practiceFormPage.successModal).toBeVisible();
         await expect(practiceFormPage.modalTitle).toHaveText('Thanks for submitting the form');
