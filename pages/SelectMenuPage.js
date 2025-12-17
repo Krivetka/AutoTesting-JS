@@ -18,7 +18,9 @@ class SelectMenuPage {
 
   async selectValue(optionText) {
     await this.selectValueDropdown.click();
-    await this.page.getByText(optionText, { exact: true }).click();
+    const option = this.page.getByText(optionText, { exact: true });
+    await option.waitFor({ state: 'visible' });
+    await option.click();
   }
 
   async selectOne(optionText) {

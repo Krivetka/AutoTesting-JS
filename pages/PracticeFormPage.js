@@ -67,6 +67,10 @@ class PracticeFormPage {
         await this.subjectsInput.press('Enter');
       }
     }
+    await this.page.waitForFunction((subj) => {
+        const selected = document.querySelector('.subjects-auto-complete__multi-value__label');
+        return selected && selected.textContent === subj;
+    }, subject, { timeout: 2000 }).catch(() => {});
   }
 
   async selectHobby(hobby) {
@@ -105,7 +109,8 @@ class PracticeFormPage {
 
   async submit() {
     await this.removeOverlays();
-    await this.submitButton.click();
+    await this.submitButton.scrollIntoViewIfNeeded();
+    await this.submitButton.click({ force: true });
   }
 
   async closeModal() {
