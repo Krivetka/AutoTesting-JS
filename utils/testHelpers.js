@@ -23,7 +23,7 @@ async function navigateWithRetry(page, gotoFn, readySelector = null, options = {
           await readySelector.waitFor({ state: 'visible' });
         }
       } else {
-        await page.waitForLoadState('domcontentloaded');
+        await page.waitForLoadState('load');
       }
       
       break;
