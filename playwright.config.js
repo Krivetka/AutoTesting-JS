@@ -1,37 +1,20 @@
 const { defineConfig, devices } = require('@playwright/test');
 
-const viewport = process.env.VIEWPORT_WIDTH && process.env.VIEWPORT_HEIGHT
-  ? { width: parseInt(process.env.VIEWPORT_WIDTH, 10), height: parseInt(process.env.VIEWPORT_HEIGHT, 10) }
-  : undefined;
-
 module.exports = defineConfig({
   testDir: './tests',
-  fullyParallel: true,
-  timeout: 120000,
-  workers: process.env.CI ? 1 : 2,
+  fullyParallel: false,
+  timeout: 60000,
+  retries: 0,
   reporter: 'html',
   use: {
+    baseURL: 'https://demoqa.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    ignoreHTTPSErrors: true,
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
   },
-  grep: process.env.runThis ? new RegExp(process.env.runThis, 'i') : undefined,
   projects: [
     {
       name: 'chromium',
-      use: { 
-        ...devices['Desktop Chrome'],
-        ...(viewport && { viewport }) 
-      },
-    },
-    {
-      name: 'firefox',
-      use: { 
-        ...devices['Desktop Firefox'],
-        ...(viewport && { viewport }) 
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 });

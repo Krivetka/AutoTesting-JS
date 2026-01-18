@@ -1,23 +1,11 @@
 {
   "name": "autotesting-js",
   "version": "1.0.0",
-  "description": "Automated testing with Playwright",
+  "description": "API testing with Playwright",
   "scripts": {
-    "test": "playwright test",
-    "test:chrome": "npx playwright test --project=chromium",
-    "test:firefox": "npx playwright test --project=firefox",
-    "test:hd": "cross-env VIEWPORT_WIDTH=1920 VIEWPORT_HEIGHT=1080 npx playwright test",
-    "test:sd": "cross-env VIEWPORT_WIDTH=1366 VIEWPORT_HEIGHT=768 npx playwright test",
-    "test:parallel": "npx playwright test --workers 2",
-    "test:alerts": "cross-env runThis=Alerts npx playwright test",
-    "test:form": "cross-env runThis=Form npx playwright test",
-    "test:textbox": "cross-env runThis=Text npx playwright test",
-    "test:tooltips": "cross-env runThis=Tooltips npx playwright test",
-    "test:select": "cross-env runThis=Select npx playwright test"
+    "test": "playwright test"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
-    "@playwright/test": "^1.40.0",
-    "cross-env": "^7.0.3"
+    "@playwright/test": "^1.40.0"
   }
 }
